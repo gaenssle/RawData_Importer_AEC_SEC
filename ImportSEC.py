@@ -8,7 +8,7 @@ import os
 # FUNCTIONS
 #####################################################################
 # Print Header
-def PrintHeader(DirectoryName):
+def PrintHeader():
 	print("\n","-"*75,"\n","-"*75,"\n")
 	print("\tSEC DATA IMPORTER \t\tby A.L.O. Gaenssle, 2019")
 	print("\n","-"*75,"\n","-"*75)
@@ -22,6 +22,12 @@ def GetFolderName(DirectoryName):
 		"\n- Otherwise enter full path: e.g. X:\Experiments\FOLDER\n"
 		% DirectoryName)
 	while os.path.exists(os.path.abspath(InputPath)) == False:
+		InputPath = InputPath.replace("/", "\\")
+		if os.path.exists(os.path.abspath(InputPath)):
+			break
+		InputPath = InputPath.replace("\\", "/")
+		if os.path.exists(os.path.abspath(InputPath)):
+			break
 		InputPath = input("\nThis folder does not exist!"
 			"\nPlease enter a correct name"
 			"\n(Check the file path by right clicking on "
@@ -36,7 +42,9 @@ def GetFileList(InputPath):
 		if  FileName.endswith(".txt") or FileName.endswith(".TXT") \
 			and not FileName in FileList:
 			FileList.append(FileName)
-			print(FileName)
+	FileList.sort()
+	for FileName in FileList:
+		print(FileName)
 	FilesCorrect = input("\nAre these files correct?\n"
 		"(y=yes, n=no)\n")
 	while FilesCorrect not in ("y", "n"):
@@ -52,84 +60,74 @@ def RenameFileNames(InputPath, FileList):
 	FileList.sort()
 	return(FileList)
 
-
-# Sub-function of GetData
-# Import the data from each file
-def ImportFiles(FileName, SampleList, Index, Information, HeaderTuple, RawData, ElutionData):
-	Header = True
+# Split file into the needed sections
+def SplitFile(FileName):
+	InsideHeader = True
 	InsideRawData = False
 	InsideElution = False
+	Part_Header = []
+	Part_RawData = []
+	Part_ElutionData = []
 	with open(FileName, 'r', encoding='cp1252') as File:
 		for Line in File:
-			Line= Line.rstrip()
-			if Header == True:
-				# Import information
-				if Line.startswith("Sample"):
-					Line = Line.split('Vial')[1]
-					Line = Line.rsplit('-',1)[0]
-					Line = Line.strip()
-					Sample = Line.split(" ",1)[1]
-					SampleList.append(Sample)
-				elif Line.startswith(HeaderTuple):
-					Line = Line.replace(' ','')
-					Key = Line.split(':')[0]
-					Value = Line.split('\t')[1]
-					Information[Key].append(Value)
-				elif Line.startswith("w%"):
-					Header = False
-			elif Line.startswith("RAWstart"):
-				InsideRawData = True
+			if InsideHeader == True:
+				Part_Header.append(Line.rstrip())
+				if Line.startswith("Calibration Coefficients:"):
+					InsideHeader = False
 			elif InsideRawData == True:
-				# Import RawData
-				if len(Line) != 0 and Line[1].isdigit():
-					Line = Line.replace(' ','')
-					Time = "{:.3f}".format(float(Line.split('\t')[0]))
-					Signal = float(Line.split('\t')[1])
-					if Time in RawData:
-						RawData[Time].append(Signal)
-					else:
-						# SignalList = [""]*Index + [Signal]
-						RawData.update({Time:[Signa]})
-				elif Line.startswith("RAWstop"):
+				Part_RawData.append(Line.rstrip())
+				if Line.startswith("RAWstop"):
 					InsideRawData = False
-			elif Line.startswith("ELUstart"):
-				InsideElution = True
 			elif InsideElution == True:
-				# Import ElutionData
-				if len(Line) != 0 and Line[1].isdigit():
-					Line = Line.replace(' ','')
-					Volume = "{:.3f}".format(round(float(Line.split('\t')[0])*60)/60)
-					Signal = float(Line.split('\t')[2])
-					if Volume in ElutionData:
-						if len(ElutionData[Volume]) <= Index:
-							SignalList = ([""]*(Index-len(ElutionData[Volume]))
-								+ [Signal])
-							ElutionData[Volume].extend(SignalList)
-					else:
-						SignalList = [""]*Index + [Signal]
-						ElutionData.update({Volume:SignalList})
-				elif Line.startswith("ELUstop"):
+				Part_ElutionData.append(Line.rstrip())
+				if Line.startswith("ELUstop"):
 					InsideElution = False
 					break
-	return(SampleList, Information, RawData, ElutionData)
+			elif Line.startswith("RAWstart"):
+				InsideRawData = True
+			elif Line.startswith("ELUstart"):
+				InsideElution = True
+	return(Part_Header, Part_RawData, Part_ElutionData)
 
-# Combine the data from all files
-def GetData(FileList):
-	SampleList = []
-	Information = {"InternalStandardCalibration":[],
-	"InternalStandardAcquisition":[],
-	"Mn":[], "Mw":[], "Mz":[], "Mp":[]}
-	HeaderTuple = ("Internal Standard Calibration",
-		"Internal Standard Acquisition", "Mn", "Mw", "Mz", "Mp")
-	RawData = {}
-	ElutionData = {}
-	Index = 0
-	for FileName in FileList:
-		(SampleList, Information, RawData,
-			ElutionData) = ImportFiles(FileName, SampleList, Index,
-			Information, HeaderTuple, RawData, ElutionData)
-		Index += 1
-	return(SampleList, Information, RawData, ElutionData)
+# Extracts information from the calibration and peak analysis
+def ExtractInformation(FilePart, Information, HeaderTuple, SampleList):
+	for Line in FilePart:
+		if Line.startswith("Sample"):
+			Line = Line.split('Vial')[1]
+			Line = Line.rsplit('-',1)[0]
+			Line = Line.strip()
+			Sample = Line.split(" ",1)[1]
+			SampleList.append(Sample)
+		elif Line.startswith(HeaderTuple):
+			Line = Line.replace(' ','')
+			Key = Line.split(':')[0]
+			Value = Line.split('\t')[1]
+			if Key in Information:
+				Information[Key].append(Value)
+			else:
+				Information[Key] = [Value]
+	return(Information, SampleList)
+
+# Extracts the raw signal data and appends it to the joined data
+def ExtractData(FilePart, Index, Data, Type="RawData"):
+	if Type == "RawData":
+		Column = 1
+	else:
+		Column = 2
+	for Line in FilePart:
+		if len(Line) != 0 and Line[1].isdigit():
+			Line = Line.replace(' ','')
+			Volume = "{:.3f}".format(round(float(Line.split('\t')[0])*60)/60)
+			Signal = float(Line.split('\t')[Column])
+			if Volume in Data:
+				if len(Data[Volume]) <= Index:
+					SignalList = ([""]*(Index-len(Data[Volume]))
+						+ [Signal])
+					Data[Volume].extend(SignalList)
+			else:
+				SignalList = [""]*Index + [Signal]
+				Data.update({Volume:SignalList})
+	return(Data)
 
 # Export the data to files
 def ExportData(SampleList, InputData, Label):
@@ -146,25 +144,38 @@ def ExportData(SampleList, InputData, Label):
 		for Unit in sorted(InputData.keys(), key=lambda x:float(x)):
 			OutputFile.write("\n%s\t" % Unit)
 			OutputFile.write("\t".join(map(str,InputData[Unit])))
-			print("\t".join(map(str,InputData[Unit])))
 	print("The %s file has been created" % Label)
 
 #####################################################################
 # SCRIPT
 #####################################################################
 
+HeaderTuple = ("Internal Standard Calibration",
+	"Internal Standard Acquisition", "Mn", "Mw", "Mz", "Mp")
+
 # Import files
 DirectoryName, ScriptName = os.path.split(os.path.abspath(__file__))
-PrintHeader(DirectoryName)
+PrintHeader()
 FilesCorrect = "n"
 while FilesCorrect == "n":
 	InputPath = GetFolderName(DirectoryName)
 	FilesCorrect, FileList = GetFileList(InputPath)
 os.chdir(os.path.abspath(InputPath))
 FileList = RenameFileNames(InputPath, FileList)
-SampleList, Information, RawData, ElutionData = GetData(FileList)
+
+
+# Combine the data from all files
+SampleList = []
+Information = {}
+RawData = {}
+ElutionData = {}
+for Index in range(len(FileList)):
+	Part_Header, Part_RawData, Part_ElutionData = SplitFile(FileList[Index])
+	Information, SampleList = ExtractInformation(Part_Header, Information, HeaderTuple, SampleList)
+	RawData = ExtractData(Part_RawData, Index, RawData)
+	ElutionData = ExtractData(Part_ElutionData, Index, ElutionData, Type="ElutionData")
 
 # Export files
-# ExportData(SampleList, Information, "Information")
+ExportData(SampleList, Information, "Information")
 ExportData(SampleList, RawData, "RawData")
-# ExportData(SampleList, ElutionData, "ElutionData")
+ExportData(SampleList, ElutionData, "ElutionData")

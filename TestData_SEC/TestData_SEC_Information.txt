@@ -1,0 +1,7 @@
+Volume	water	STD1	STD 3	Sample
+InternalStandardAcquisition	27.254	27.073	26.181	26.950
+InternalStandardCalibration	24.440	24.440	24.440	24.440
+Mn	3.960E+2	7.339E+2	2.645E+3	4.123E+2
+Mp	3.985E+2	3.985E+2	5.500E+3	1.778E+2
+Mw	3.972E+2	5.424E+5	8.964E+4	7.005E+4
+Mz	3.993E+2	6.464E+8	2.678E+5	6.481E+7

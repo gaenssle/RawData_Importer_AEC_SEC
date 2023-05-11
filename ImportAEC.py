@@ -20,11 +20,17 @@ def GetFolderName(DirectoryName):
 		"\n- Otherwise enter full path: e.g. X:\Experiments\FOLDER\n"
 		% DirectoryName)
 	while os.path.exists(os.path.abspath(InputPath)) == False:
-		InputPath = input("\nThis folder does not exist!"
+		InputPath = InputPath.replace("/", "\\")
+		if os.path.exists(os.path.abspath(InputPath)):
+			break
+		InputPath = InputPath.replace("\\", "/")
+		if os.path.exists(os.path.abspath(InputPath)):
+			break
+		InputPath = input("\nFolder %s does not exist!"
 			"\nPlease enter a correct name"
 			"\n(Check the file path by right clicking on "
 			"the folder and selecting 'Properties')"
-			"\n(Use arrows on keyboard for faster correction)\n")
+			"\n(Use arrows on keyboard for faster correction)\n" %InputPath)
 	return (InputPath)
 
 # Get the names of the files in the folder
@@ -34,7 +40,9 @@ def GetFileList(InputPath):
 		if  FileName.endswith(".txt") or FileName.endswith(".TXT") \
 			and not FileName in FileList:
 			FileList.append(FileName)
-			print(FileName)
+	FileList.sort()
+	for FileName in FileList:
+		print(FileName)
 	FilesCorrect = input("\nAre these files correct?\n"
 		"(y=yes, n=no)\n")
 	while FilesCorrect not in ("y", "n"):
@@ -50,7 +58,7 @@ def ImportFiles(FileName, SampleList, Index, RawData):
 		if InsideRawData == False:
 			if Line.startswith("Injection\t"):
 				Line = Line.split('\t')[1]
-				SampleList.append(Line)				
+				SampleList.append(Line)
 			elif Line == "Chromatogram Data:":
 				InsideRawData = True
 		else:
@@ -63,12 +71,12 @@ def ImportFiles(FileName, SampleList, Index, RawData):
 				Signal = float(Line.split('\t')[2])
 				if Time in RawData:
 					if len(RawData[Time]) <= Index:
-						SignalList = ([""]*(Index-len(RawData[Time])) 
+						SignalList = ([""]*(Index-len(RawData[Time]))
 							+ [Signal])
 						RawData[Time].extend(SignalList)
 				else:
 					SignalList = [""]*Index + [Signal]
-					RawData.update({Time:SignalList})	
+					RawData.update({Time:SignalList})
 	return(SampleList, RawData)
 
 # Combine the data from all files
@@ -77,7 +85,7 @@ def GetData(FileList):
 	RawData = {}
 	Index = 0
 	for FileName in FileList:
-		(SampleList, RawData) = ImportFiles(FileName, SampleList, 
+		(SampleList, RawData) = ImportFiles(FileName, SampleList,
 			Index, RawData)
 		Index += 1
 	return(SampleList, RawData)

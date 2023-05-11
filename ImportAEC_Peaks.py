@@ -12,7 +12,7 @@ import os
 # Get name of folder that contains the files to be imported
 def GetFolderName(DirectoryName):
 	print("\n","-"*75,"\n","-"*75,"\n")
-	print("\tAEC PEAK IMPORTER \t\tby A.L.O. Gaenssle, 2019")
+	print("\tAEC PEAk IMPORTER \t\tby A.L.O. Gaenssle, 2019")
 	print("\n","-"*75,"\n","-"*75)
 	InputPath = input("\nEnter the folder name containing "
 		"the files to be imported"
@@ -21,11 +21,17 @@ def GetFolderName(DirectoryName):
 		"\n- Otherwise enter full path: e.g. X:\Experiments\FOLDER\n"
 		% DirectoryName)
 	while os.path.exists(os.path.abspath(InputPath)) == False:
-		InputPath = input("\nThis folder does not exist!"
+		InputPath = InputPath.replace("/", "\\")
+		if os.path.exists(os.path.abspath(InputPath)):
+			break
+		InputPath = InputPath.replace("\\", "/")
+		if os.path.exists(os.path.abspath(InputPath)):
+			break
+		InputPath = input("\nFolder %s does not exist!"
 			"\nPlease enter a correct name"
 			"\n(Check the file path by right clicking on "
 			"the folder and selecting 'Properties')"
-			"\n(Use arrows on keyboard for faster correction)\n")
+			"\n(Use arrows on keyboard for faster correction)\n" %InputPath)
 	return (InputPath)
 
 # Get the names of the files in the folder
@@ -35,7 +41,9 @@ def GetFileList(InputPath):
 		if  FileName.endswith(".txt") or FileName.endswith(".TXT") \
 			and not FileName in FileList:
 			FileList.append(FileName)
-			print(FileName)
+	FileList.sort()
+	for FileName in FileList:
+		print(FileName)
 	FilesCorrect = input("\nAre these files correct?\n"
 		"(y=yes, n=no)\n")
 	while FilesCorrect not in ("y", "n"):
@@ -91,7 +99,7 @@ def AddData(Index, Time, Data, Signal):
 
 # Sub-function of GetData
 # Import the data from each file
-def ImportFiles(FileName, MinArea, MinTime, RoundTime, Index, 
+def ImportFiles(FileName, MinArea, MinTime, RoundTime, Index,
 	SampleList, AreaData, HeightData, RelAreaData, PeakTypeData):
 	InsideData = False
 	for Line in open(FileName, 'r'):
@@ -99,7 +107,7 @@ def ImportFiles(FileName, MinArea, MinTime, RoundTime, Index,
 		if InsideData == False:
 			if Line.startswith("Injection Name:\t"):
 				Line = Line.split('\t')[2]
-				SampleList.append(Line)				
+				SampleList.append(Line)
 			elif Line == "Integration Results":
 				InsideData = True
 		else:
@@ -117,7 +125,7 @@ def ImportFiles(FileName, MinArea, MinTime, RoundTime, Index,
 						HeightData, Height)
 					RelArea = float(Line.split('\t')[5])
 					RelAreaData = AddData(Index, Time,
-						RelAreaData, RelArea)			
+						RelAreaData, RelArea)
 	return(SampleList, AreaData, HeightData, RelAreaData, PeakTypeData)
 
 # Combine the data from all files

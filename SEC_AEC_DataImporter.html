@@ -48,7 +48,7 @@
     .top {
       background-color: #151E3D;
       font-weight: bold;
-      float: left; 
+      float: left;
     }
 
 
@@ -147,7 +147,7 @@
     <h1 id="TOC0" class="title">SEC and AEC Data Importer</h1>
     <p class="subtitle">Created for <a href="https://www.thermofisher.com/order/catalog/product/CHROMELEON7" target="_blank">Chromeleon</a> by A.L.O. Gaenssle, 2022</p>
   <h1 id="TOC1">1. Introduction</h1>
-  <p>The SEC and AEC (Peak) Data Importer are small programs I have written in Python 3.5. All three works after the same principle and simply differ in the type of files they import. They import all text files in a folder and accumulate all the samples into a set of export files. Since the programs don't have a user interface they can only be run using the terminal and they only import files from the SEC upstairs, our Dionex or any file with the same layout.</p>
+  <p>The SEC and AEC (Peak) Data Importer are small programs I have written in Python 3.5. All three work after the same principle and simply differ in the type of files they import. They import all text files in a folder and accumulate all the samples into a set of export files. Since the programs don't have a user interface they can only be run using the terminal and they only import files from SEC, Dionex (Chromeleon) or any file with the same layout.</p>
   <h1 id="TOC2">2. Install Python</h1>
   <ul>
     <li>Download and install Python from python.org
@@ -175,7 +175,8 @@
     <li>Copy your files to the sub-sub folders
       <ul>
         <li>Make sure that there are no other .txt files in those folders or it will try to import them as well and crash</li>
-        <li>If you have more than 10 samples, add a 0 to the first 9 files to import the files in the correct order</li>
+        <li>Make sure the files are in the order you want. This works best if the file names start with a number</li>
+        <li>For SEC, the program adds a leading 0 for samples with a single leading digit</li>
       </ul>
     </li>
   </ul>
@@ -188,7 +189,7 @@
       <p class="code">python ImportSEC.py</p>
     </li>
   </ul>
- 
+
   <ul>
     <li>It will ask you for your folder, thus write then something like:
       <p class="code">SEC1\RawData</p>
@@ -220,13 +221,13 @@
       <p class="code">python ImportAEC.py</p>
     </li>
   </ul>
-  
+
   <ul>
     <li>It will ask you for your folder, thus write then something like:
       <p class="code">AEC1\RawData</p>
     </li>
   </ul>
-  
+
   <ul>
     <li>Then it will list all the .txt files that are going to be imported. Confirm it or deny and type in a new path</li>
     <li>It will create an output file called ..._RawData.txt which can be opened in e.g. Excel</li>
@@ -246,13 +247,13 @@
       <p class="code">python ImportAEC_Peaks.py</p>
     </li>
   </ul>
-  
+
   <ul>
     <li>It will ask you for your folder, thus write then something like:
       <p class="code">AEC1\PeakResults</p>
     </li>
   </ul>
-  
+
   <ul>
     <li>Then it will list all the .txt files that are going to be imported. Confirm it or deny and type in a new path</li>
     <li>You need to enter a minimum area to only export peaks which are larger than that, set to 0 if you want to export all</li>
