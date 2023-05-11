@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SEC and AEC Importer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style type="text/css">
+    body {
+      margin: 0;
+      font-family: Cambria; Arial;
+    }
+
+    .main {
+      margin: 75px 20px 100px 20px;
+    }
+
+    .footer {
+      background-color: #1F456E;
+      position: fixed;
+      bottom: 0px;
+      width: 100%;
+    }
+
+    .footer a, .footer p {
+      font-size: 11px;
+      color: white;
+      text-align: center;
+      padding: 4px 10px;
+      display: inline-block;
+      float: right;
+    }
+
+    .navbar {
+      background-color: #1F456E;
+      position: fixed;
+      top: 0px;
+      width: 100%;
+    }
+
+    .navbar a {
+      font-size: 15px;
+      color: white;
+      text-align: center;
+      padding: 6px 10px;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    .top {
+      background-color: #151E3D;
+      font-weight: bold;
+      float: left; 
+    }
+
+
+    .navbar a:hover {
+      background-color: #9B1003;
+    }
+
+
+    h1 .title {
+      color:black;
+      font-weight:bold;
+      font-size: 100%;
+      padding: 2px;
+      margin: -40px 0 0 0;
+    }
+
+    h1::before {
+    padding-top:60px;
+    display:block;
+    content:"";
+    }
+
+    .title {
+      font-size:250%;
+      border: none;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+    }
+
+    h1 {
+      font-size:120%;
+      border-bottom:1.5px solid black;
+    }
+
+
+    p, li {
+      color:black;
+      font-size:80%;
+      margin: 0 0 5px 2px;
+      padding: 2px
+    }
+
+    ul {
+      margin: 0;
+      padding: 0 0 2px 25px;
+    }
+
+    li {
+      margin: 0;
+      padding: 0;
+    }
+
+    li li {
+      font-size: 100%;
+      padding: 0;
+    }
+
+    li .code {
+      font-size: 85%;
+      padding: 2px;
+      margin-top: 5px;
+    }
+
+    .code {
+      font-size:70%;
+      font-family:Courier New;
+      padding: 0;
+      margin: 0 0 2px 30px;
+    }
+
+    .spacer {
+      margin: 10px;
+    }
+  }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a class="top" href="#TOC0">Top</a>
+    <a href="#TOC0">Intro</a>
+    <a href="#TOC1">Python</a>
+    <a href="#TOC2">Setup</a>
+    <a href="#TOC3">Terminal</a>
+    <a href="#TOC4">SEC-Data</a>
+    <a href="#TOC5">AEC-Data</a>
+    <a href="#TOC6">AEC-Peak</a>
+  </div>
+    <div class="footer">
+    <a href="https://www.thermofisher.com/order/catalog/product/CHROMELEON7" target="_blank">Chromeleon</a>
+    <p>Manual created by A.L.O. Gaenssle, 2022</p>
+  </div>
+  <div class="main">
+    <h1 id="TOC0" class="title">SEC and AEC Data Importer</h1>
+    <p class="subtitle">Created for <a href="https://www.thermofisher.com/order/catalog/product/CHROMELEON7" target="_blank">Chromeleon</a> by A.L.O. Gaenssle, 2022</p>
+  <h1 id="TOC1">1. Introduction</h1>
+  <p>The SEC and AEC (Peak) Data Importer are small programs I have written in Python 3.5. All three works after the same principle and simply differ in the type of files they import. They import all text files in a folder and accumulate all the samples into a set of export files. Since the programs don't have a user interface they can only be run using the terminal and they only import files from the SEC upstairs, our Dionex or any file with the same layout.</p>
+  <h1 id="TOC2">2. Install Python</h1>
+  <ul>
+    <li>Download and install Python from python.org
+      <ul>
+        <li>I have version 3.5 but the newest one should work as well</li>
+        <li>Make sure that you tick the box with "add Python to PATH" or it won't recognize it later</li>
+      </ul>
+    </li>
+  </ul>
+  <h1 id="TOC3">3. Setup environment</h1>
+  <ul>
+    <li>Create the following folder structure for your SEC/AEC files:
+      <ul>
+        <li>Main folder (e.g. SEC)</li>
+        <li>Sub-folders (e.g. SEC1_6/8/19)</li>
+        <li>Sub-subfolders (e.g. RawData)</li>
+      </ul>
+    </li>
+    <li>Set up an easy access to the program
+      <ul>
+        <li>Copy the program (e.g. ImportSEC.py) into your main folder</li>
+        <li>Make a shortcut of the terminal (cmd) in your main folder, right-click on the shortcut, select properties. Go to the tab "Shortcut" and change the path in "Start in:" to your main folder</li>
+      </ul>
+    </li>
+    <li>Copy your files to the sub-sub folders
+      <ul>
+        <li>Make sure that there are no other .txt files in those folders or it will try to import them as well and crash</li>
+        <li>If you have more than 10 samples, add a 0 to the first 9 files to import the files in the correct order</li>
+      </ul>
+    </li>
+  </ul>
+  <h1 id="TOC4">4. Terminal</h1>
+  <p>Since the program don't have a user interface, everything has to be conducted using the terminal (cmd). The terminal is a pure text based window so your mouse is useless in it. However, you can use arrow keys for navigation and the tab key for auto-completion. After typing in the text input hit enter to conduct the command. If you want to kill the program, use CTRL+C.</p>
+  <h1 id="TOC5">5. SEC Data Importer</h1>
+  <p>This program imports files from the SEC and combines them into three files, being information, raw data and elution data.</p>
+  <ul>
+    <li>Open the terminal and write:
+      <p class="code">python ImportSEC.py</p>
+    </li>
+  </ul>
+ 
+  <ul>
+    <li>It will ask you for your folder, thus write then something like:
+      <p class="code">SEC1\RawData</p>
+    </li>
+  </ul>
+  <ul>
+    <li>Then it will list all the .txt files that are going to be imported. Confirm it or deny and type in a new path</li>
+    <li>It will create three output files in the sub-folder:
+      <ul>
+        <li>Information: Summary of estimated weights and shift in marker elution volume</li>
+        <li>RawData: The raw, unmodified data in a table</li>
+        <li>ElutionData: The data from the second graph which are limited to the selected range, corrected for both baseline and marker position</li>
+      </ul>
+    </li>
+    <li>You can open the files in Excel by dragging the file from the explorer into an Excel window (Columns are separated by tabs)</li>
+  </ul>
+  <h1 id="TOC6">6. AEC Data Importer</h1>
+  <p>This program imports files from our Dionex and accumulates the raw data into a single file.</p>
+  <ul>
+    <li>In Chromeleon, go to Report Designer and create a report (choose default)</li>
+    <li>Export the raw data from our Dionex in Chromeleon
+      <ul>
+        <li>Select the samples in the Injection List&gt; right click&gt; Export…&gt;Text format (RawData) (*.txt)</li>
+        <li>Select Parent Folder to set where the files should be saved</li>
+        <li>You might need to move the samples or rename the folder to set it up for the importer</li>
+      </ul>
+    </li>
+    <li>Open the terminal and write:
+      <p class="code">python ImportAEC.py</p>
+    </li>
+  </ul>
+  
+  <ul>
+    <li>It will ask you for your folder, thus write then something like:
+      <p class="code">AEC1\RawData</p>
+    </li>
+  </ul>
+  
+  <ul>
+    <li>Then it will list all the .txt files that are going to be imported. Confirm it or deny and type in a new path</li>
+    <li>It will create an output file called ..._RawData.txt which can be opened in e.g. Excel</li>
+  </ul>
+  <h1 id="TOC7">7. AEC Peak Importer</h1>
+  <p>This program imports the peak data files from our Dionex and accumulated them into three output files, being Area, RelativeArea and Height.</p>
+  <ul>
+    <li>Export the raw data from our Dionex in Chromeleon
+      <ul>
+        <li>Select the samples in the Injection List&gt; right click&gt; Export…&gt;Text format (Results) (*.txt)</li>
+        <li>Click on the button next to the selection and deselect everything in the new window except Integration</li>
+        <li>Select Parent Folder to set where the files should be saved</li>
+        <li>You might need to move the samples or rename the folder to set it up for the importer</li>
+      </ul>
+    </li>
+    <li>Open the terminal and write:
+      <p class="code">python ImportAEC_Peaks.py</p>
+    </li>
+  </ul>
+  
+  <ul>
+    <li>It will ask you for your folder, thus write then something like:
+      <p class="code">AEC1\PeakResults</p>
+    </li>
+  </ul>
+  
+  <ul>
+    <li>Then it will list all the .txt files that are going to be imported. Confirm it or deny and type in a new path</li>
+    <li>You need to enter a minimum area to only export peaks which are larger than that, set to 0 if you want to export all</li>
+    <li>Then, enter the minimum time to exclude any initial peaks by buffer, injection, etc, set to 0 if you want all peak</li>
+    <li>Finally, enter the precision you want the time to be rounded to; this compensates for small shifts and reduces the amount of empty lines but be careful as a too high value will delete some of your peaks (only one per time per sample)</li>
+    <li>It will create three very similar output files in the sub-folder, being Area, Height and RelativeArea for the respective values accumulated in the file</li>
+    <li>You can open the files in Excel by dragging the file from the explorer into an Excel window (Columns are separated by tabs)</li>
+  </ul>
+  <p></p>
+  <p>If you have questions or if you get errors, ask me.</p>
+</div>
+</body>
+</html>
