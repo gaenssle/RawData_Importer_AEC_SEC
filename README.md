@@ -1,5 +1,5 @@
 # Raw Data Importer for SEC and AEC data
-created 2022 by gaenssle
+created 2019 by gaenssle
 written in python 3.5
 
 for questions, write to algaenssle@gmx.com
